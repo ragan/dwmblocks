@@ -34,21 +34,15 @@ function bar() {
 	fi
 }
 
-function sens() {
-	echo "$1" | awk 'match($0, "Core '$2'") {print $3}' | sed -e 's/\+//g' -e 's/°C//g' -e 's/\..*//g'
-}
+s=$(sensors | grep -E '^Core')
 
-s=$(sensors)
+res=""
 
-t0=$(sens "$s" 0) 
-t1=$(sens "$s" 1)
-t2=$(sens "$s" 2)
-t3=$(sens "$s" 3)
+while IFS= read -r line; do
+	temp=$(echo "$line" | awk '{print $3}' | sed -e 's/\+//g' -e 's/°C//g' -e 's/\..*//g')
+	b=$(bar "$temp")
+	res=${res}${b}
+done <<< "$s"
 
-b0=$(bar "$t0")
-b1=$(bar "$t1")
-b2=$(bar "$t2")
-b3=$(bar "$t3")
-
-echo "$(bar "$t0")$(bar "$t1")$(bar "$t2")$(bar "$t3")"
+echo "$res"
 
