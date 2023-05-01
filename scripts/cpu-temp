@@ -1,9 +1,54 @@
 #!/bin/bash
 
-t0=$(sensors | awk '/Core 0/ {print $3}' | sed -e 's/\+//g' -e 's/°C//g' -e 's/\..*//g')
-t1=$(sensors | awk '/Core 1/ {print $3}' | sed -e 's/\+//g' -e 's/°C//g' -e 's/\..*//g')
-t2=$(sensors | awk '/Core 2/ {print $3}' | sed -e 's/\+//g' -e 's/°C//g' -e 's/\..*//g')
-t3=$(sensors | awk '/Core 3/ {print $3}' | sed -e 's/\+//g' -e 's/°C//g' -e 's/\..*//g')
+L0=10  #▁
+L1=20  #▂
+L2=30  #▃
+L3=40  #▄
+L4=50  #▅
+L5=60  #▆
+L6=70  #▇
+L7=80  #█
 
-echo "$t0 $t1 $t2 $t3"
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+function bar() {
+	if [ "$1" -lt "$L0" ]; then
+		echo "▁";
+	elif [ "$1" -lt "$L1" ]; then
+		echo "▂";
+	elif [ "$1" -lt "$L2" ]; then
+		echo "▃";
+	elif [ "$1" -lt "$L3" ]; then
+		echo -e "▄";
+	elif [ "$1" -lt "$L4" ]; then
+		echo "▅";
+	elif [ "$1" -lt "$L5" ]; then
+		echo "▆";
+	elif [ "$1" -lt "$L6" ]; then
+		echo "▇";
+	elif [ "$1" -lt "$L7" ]; then
+		echo "█";
+	else
+		echo "!";
+	fi
+}
+
+function sens() {
+	echo "$1" | awk 'match($0, "Core '$2'") {print $3}' | sed -e 's/\+//g' -e 's/°C//g' -e 's/\..*//g'
+}
+
+s=$(sensors)
+
+t0=$(sens "$s" 0) 
+t1=$(sens "$s" 1)
+t2=$(sens "$s" 2)
+t3=$(sens "$s" 3)
+
+b0=$(bar "$t0")
+b1=$(bar "$t1")
+b2=$(bar "$t2")
+b3=$(bar "$t3")
+
+echo "$(bar "$t0")$(bar "$t1")$(bar "$t2")$(bar "$t3")"
 
